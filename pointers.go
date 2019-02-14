@@ -11,7 +11,7 @@ func zeroPtr(i *int) {
 }
 
 func main() {
-	var i int = 10
+	var i = 10
 
 	zeroVal(i)
 

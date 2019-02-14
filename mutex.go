@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -13,6 +14,7 @@ func main() {
 	var readOps uint64
 	var writeOps uint64
 
+	// Simulate reads
 	for i := 0; i < 100; i++ {
 		go func() {
 			total := 0
@@ -28,4 +30,30 @@ func main() {
 			}
 		}()
 	}
+
+	// Simulate writes
+	for w := 0; w < 10; w++ {
+		go func() {
+			for {
+				key := rand.Intn(5)
+				val := rand.Intn(100)
+				mutex.Lock()
+				state[key] = val
+				mutex.Unlock()
+				atomic.AddUint64(&writeOps, 1)
+				time.Sleep(time.Millisecond)
+			}
+		}()
+	}
+
+	time.Sleep(time.Second)
+
+	readOpsFinal := atomic.LoadUint64(&readOps)
+	fmt.Println("readOps:", readOpsFinal)
+	writeOpsFinal := atomic.LoadUint64(&writeOps)
+	fmt.Println("writeOps:", writeOpsFinal)
+
+	mutex.Lock()
+	fmt.Println("state:", state)
+	mutex.Unlock()
 }
